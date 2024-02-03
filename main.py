@@ -1,6 +1,5 @@
 from src.removal_rate_model import RemovalRateModel
 from src.data_processing import read_and_combine, scale_data, prepare_data
-from sklearn.preprocessing import MinMaxScaler
 
 # Use read_and_combine to combine CSV files into two DataFrames for training and test
 training_data = read_and_combine()
