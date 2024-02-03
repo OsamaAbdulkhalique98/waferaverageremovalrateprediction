@@ -70,6 +70,7 @@ def add_output_column(data: pd.DataFrame(),
     data = pd.merge(data, output_data, on=['WAFER_ID', 'STAGE'])
     return data
 
+
 def prepare_data(training_set, test_set):
     # Extract features and add output column to the training set
     training_features = extract_features(training_set)
