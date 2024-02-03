@@ -9,7 +9,7 @@ This project predicts the average removal rate of wafers in a CMP (Chemical Mech
 The project is organized into the following components:
 
 - `data_processing.py`: Contains functions for reading and processing data.
-- `removal_rate_model.py`: Defines the WaferModel class, which handles training and evaluating machine learning models.
+- `removal_rate_model.py`: Defines the RemovalRateModel class, which handles training and evaluating machine learning models.
 - `main.py`: The main script for running the project, including data processing, model training, and evaluation.
 
 ## Setup
