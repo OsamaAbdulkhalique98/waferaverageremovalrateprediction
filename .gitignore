@@ -17,3 +17,4 @@ venv/
 data/test/*
 data/training/*
 data/validation/*
+.venv/*
