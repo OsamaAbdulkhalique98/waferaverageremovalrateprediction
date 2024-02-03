@@ -4,6 +4,7 @@ from sklearn.linear_model import Lasso
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import ks_2samp
 
@@ -12,8 +13,6 @@ class RemovalRateModel:
         self.model_rf = RandomForestRegressor()
         self.model_svr = SVR()
         self.model_lasso = Lasso()
-        self.inputs_scaler = MinMaxScaler()
-        self.outputs_scaler = MinMaxScaler()
 
     def scale_data(self, inputs, outputs, test_inputs, test_outputs):
         """
@@ -46,10 +45,10 @@ class RemovalRateModel:
         """Train the given model with the provided inputs and outputs."""
         model.fit(inputs, outputs)
 
-    def predict_and_inverse_transform(self, model, test_inputs):
+    def predict_and_inverse_transform(self, model, test_inputs, output_scaler):
         """Predict on the test data and inverse transform the predictions."""
         predictions = model.predict(test_inputs)
-        predictions_inv = self.outputs_scaler.inverse_transform(predictions.reshape(-1, 1)).flatten()
+        predictions_inv = output_scaler.inverse_transform(predictions.reshape(-1, 1)).flatten()
         return predictions_inv
 
     def evaluate_model(self, predictions, test_outputs_inv):
@@ -70,7 +69,14 @@ class RemovalRateModel:
             'R2 Score': r2_score(test_outputs_inv, predictions)
         }
         return metrics
-
+    
+    def summarize_result(self, metrics_rf, metrics_svr, metrics_lasso):
+        results = pd.DataFrame({"Random Forest": metrics_rf,
+                                "SVR": metrics_svr,
+                                "Lasso": metrics_lasso})
+        return results
+    
+    
     def plot_errors_by_wafer(self, errors_rf, errors_svr, errors_lasso):
         """Plot the errors of each model for each Wafer ID."""
         wafer_ids = range(len(errors_rf))  # Assuming errors_rf, errors_svr, and errors_lasso have the same length

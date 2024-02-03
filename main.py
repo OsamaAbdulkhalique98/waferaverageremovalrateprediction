@@ -1,6 +1,5 @@
-import pandas as pd
 from src.removal_rate_model import RemovalRateModel
-from src.data_processing import read_and_combine, scale_data, prepare_data, extract_features
+from src.data_processing import read_and_combine, scale_data, prepare_data
 from sklearn.preprocessing import MinMaxScaler
 
 # Use read_and_combine to combine CSV files into two DataFrames for training and test
@@ -8,51 +7,68 @@ training_data = read_and_combine()
 test_data = read_and_combine("test")
 training_inputs, training_outputs, test_inputs, test_outputs = prepare_data(training_data, test_data)
 
-# print()
-# print()
-# print()
+# Scale the data
+scaled_training_inputs, scaled_test_inputs, scaled_training_outputs, scaled_test_outputs, output_scaler = scale_data(
+    training_inputs, training_outputs, test_inputs, test_outputs
+)
+# Create an instance of RemovalRateModel for Random Forest
+rf_model = RemovalRateModel()
+
+# Train the Random Forest model
+rf_model.train_model(rf_model.model_rf, scaled_training_inputs, scaled_training_outputs)
+
+# Predict on the test data and inverse transform the predictions
+predictions_rf = rf_model.predict_and_inverse_transform(rf_model.model_rf, scaled_test_inputs, output_scaler)
+
+# Evaluate the model and get metrics
+metrics_rf = rf_model.evaluate_model(predictions_rf, scaled_test_outputs)
+
+# Perform KS-test for the Random Forest model
+ks_test_rf = rf_model.perform_ks_test(predictions_rf - scaled_test_outputs, 0, 1)
 
 
-# # Use prepare_data to extract features, add output column, and create inputs/outputs for training and test sets
-# training_inputs, training_outputs, test_inputs, test_outputs = prepare_data(training_data, test_data)
-inputs_scaler = MinMaxScaler()
-outputs_scaler = MinMaxScaler()
+# Create an instance of RemovalRateModel for SVR Model
+svr_model = RemovalRateModel()
 
-# # # Scaling inputs
-scaled_training_inputs = inputs_scaler.fit_transform(training_inputs)
-scaled_test_inputs = inputs_scaler.transform(test_inputs)
+# Train the SVR model
+svr_model.train_model(svr_model.model_svr, scaled_training_inputs, scaled_training_outputs)
 
-# # Scaling outputs. Reshape is used because fit_transform expects 2D array
-scaled_training_outputs = outputs_scaler.fit_transform(training_outputs).flatten()
-scaled_test_outputs = outputs_scaler.transform(test_outputs).flatten()
-print(scaled_training_inputs)
-# # # Scale the data
-# # scaled_training_inputs, scaled_test_inputs, scaled_training_outputs, scaled_test_outputs = scale_data(
-# #     training_inputs, training_outputs, test_inputs, test_outputs
-# # )
-# # # Create an instance of RemovalRateModel
-# # model = RemovalRateModel()
+# Predict on the test data and inverse transform the predictions
+predictions_svr = svr_model.predict_and_inverse_transform(svr_model.model_svr, scaled_test_inputs, output_scaler)
 
-# # # Train the Random Forest model
-# # model.train_model(model.model_rf, scaled_training_inputs, scaled_training_outputs)
+# Evaluate the model and get metrics
+metrics_svr = svr_model.evaluate_model(predictions_svr, scaled_test_outputs)
 
-# # # Predict on the test data and inverse transform the predictions
-# # predictions_rf = model.predict_and_inverse_transform(model.model_rf, scaled_test_inputs)
+# Perform KS-test for the SVR model
+ks_test_svr = svr_model.perform_ks_test(predictions_svr - scaled_test_outputs, 0, 1)
 
-# # # Evaluate the model and get metrics
-# # metrics_rf = model.evaluate_model(predictions_rf, scaled_test_outputs)
 
-# # # Perform KS-test for the Random Forest model
-# # ks_test_rf = model.perform_ks_test(predictions_rf - scaled_test_outputs, 0, 1)
 
-# # # Print the metrics and KS-test results
-# # print("Random Forest Metrics:")
-# # print(metrics_rf)
-# # print("\nRandom Forest KS-Test Result:")
-# # print(ks_test_rf)
+# Create an instance of RemovalRateModel for Lasso Model
+lasso_model = RemovalRateModel()
 
-# # # Plot errors by Wafer ID
-# # model.plot_errors_by_wafer(predictions_rf - scaled_test_outputs, [], [])
+# Train the SVR model
+lasso_model.train_model(lasso_model.model_lasso, scaled_training_inputs, scaled_training_outputs)
 
-# # # Plot errors by histogram with normal distribution
-# # model.plot_errors_by_histogram_with_normal(predictions_rf - scaled_test_outputs, [], [])
+# Predict on the test data and inverse transform the predictions
+predictions_lasso = lasso_model.predict_and_inverse_transform(lasso_model.model_lasso, scaled_test_inputs, output_scaler)
+
+# Evaluate the model and get metrics
+metrics_lasso = lasso_model.evaluate_model(predictions_lasso, scaled_test_outputs)
+
+# Perform KS-test for the Lasso model
+ks_test_lasso = lasso_model.perform_ks_test(predictions_lasso - scaled_test_outputs, 0, 1)
+
+
+
+# Calculate Errors for each model
+errors_rf = predictions_rf - scaled_test_outputs
+errors_svr = predictions_svr - scaled_test_outputs
+errors_lasso = predictions_lasso -scaled_test_outputs
+
+results = RemovalRateModel().summarize_result(metrics_rf, metrics_svr, metrics_lasso)
+print(results)
+# Plot errors by Wafer ID
+RemovalRateModel().plot_errors_by_wafer(errors_rf, errors_svr, errors_lasso)
+# Plot errors by histogram with normal distribution
+RemovalRateModel().plot_errors_by_histogram_with_normal(errors_rf, errors_svr, errors_lasso)

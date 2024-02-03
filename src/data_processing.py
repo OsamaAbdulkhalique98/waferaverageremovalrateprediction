@@ -78,7 +78,7 @@ def prepare_data(training_set, test_set):
 
     # Extract features and add output column to the test set
     test_features = extract_features(test_set)
-    test_features = add_output_column(test_features)
+    test_features = add_output_column(test_features, "test")
     
     training_features["STAGE"] = training_features["STAGE"].replace({"A": 0, "B": 1})
     test_features["STAGE"] = test_features["STAGE"].replace({"A": 0, "B": 1})
@@ -122,4 +122,4 @@ def scale_data(training_inputs, training_outputs, test_inputs, test_outputs):
     scaled_training_outputs = outputs_scaler.fit_transform(training_outputs.reshape(-1, 1)).flatten()
     scaled_test_outputs = outputs_scaler.transform(test_outputs.reshape(-1, 1)).flatten()
 
-    return scaled_training_inputs, scaled_test_inputs, scaled_training_outputs, scaled_test_outputs
+    return scaled_training_inputs, scaled_test_inputs, scaled_training_outputs, scaled_test_outputs, outputs_scaler
