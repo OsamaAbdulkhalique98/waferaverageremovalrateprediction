@@ -5,7 +5,7 @@ from sklearn.preprocessing import MinMaxScaler
 # Use read_and_combine to combine CSV files into two DataFrames for training and test
 training_data = read_and_combine()
 test_data = read_and_combine("test")
-training_inputs, training_outputs, test_inputs, test_outputs = prepare_data(training_data, test_data)
+training_inputs, training_outputs, test_inputs, test_outputs = prepare_data(training_data, test_data, separate_stage=True)
 
 # Scale the data
 scaled_training_inputs, scaled_test_inputs, scaled_training_outputs, scaled_test_outputs, output_scaler = scale_data(
@@ -43,7 +43,6 @@ metrics_svr = svr_model.evaluate_model(predictions_svr, scaled_test_outputs)
 ks_test_svr = svr_model.perform_ks_test(predictions_svr - scaled_test_outputs, 0, 1)
 
 
-
 # Create an instance of RemovalRateModel for Lasso Model
 lasso_model = RemovalRateModel()
 
@@ -58,7 +57,6 @@ metrics_lasso = lasso_model.evaluate_model(predictions_lasso, scaled_test_output
 
 # Perform KS-test for the Lasso model
 ks_test_lasso = lasso_model.perform_ks_test(predictions_lasso - scaled_test_outputs, 0, 1)
-
 
 
 # Calculate Errors for each model
