@@ -5,6 +5,15 @@ import numpy as np
 from scipy.stats import zscore
 
 def read_and_combine(folder: str = "training"):
+    """
+    Read and combine CSV files from the specified folder.
+
+    Parameters:
+    - folder (str): The folder containing CSV files.
+
+    Returns:
+    - pd.DataFrame: Combined DataFrame.
+    """
     # Path to the folder containing CSV files
     folder_path = "../data/" + folder
     # List to store DataFrames from each CSV file
@@ -28,6 +37,17 @@ def read_and_combine(folder: str = "training"):
 
 
 def extract_features(data: pd.DataFrame, id_column: str = "WAFER_ID", non_extracted_columns: list = ["TIMESTAMP", "WAFER_ID", "CHAMBER"]):
+    """
+    Extract features from the input DataFrame based on unique wafer IDs.
+
+    Parameters:
+    - data (pd.DataFrame): Input DataFrame.
+    - id_column (str): Column representing wafer IDs.
+    - non_extracted_columns (list): Columns to exclude from feature extraction.
+
+    Returns:
+    - pd.DataFrame: Extracted features DataFrame.
+    """    
     unique_ids = data[id_column].unique() 
     data_rows = []
     for wafer in unique_ids:
@@ -66,12 +86,33 @@ def extract_features(data: pd.DataFrame, id_column: str = "WAFER_ID", non_extrac
 
 def add_output_column(data: pd.DataFrame(),
                       data_name: str = "training"):
+    """
+    Add the output column from the specified CSV file to the input DataFrame.
+
+    Parameters:
+    - data (pd.DataFrame): Input DataFrame.
+    - data_name (str): Name of the data (e.g., "training" or "test").
+
+    Returns:
+    - pd.DataFrame: DataFrame with added output column.
+    """
     output_data = pd.read_csv("../data/CMP-" + data_name + "-removalrate.csv")
     data = pd.merge(data, output_data, on=['WAFER_ID', 'STAGE'])
     return data
 
 
 def prepare_data(training_set, test_set, outliers):
+    """
+    Prepare training and test data for model training and testing.
+
+    Parameters:
+    - training_set (pd.DataFrame): Training set DataFrame.
+    - test_set (pd.DataFrame): Test set DataFrame.
+    - outliers (bool): Placeholder for outlier handling: If True, will continue without dropping outliers.
+
+    Returns:
+    - Training inputs, training outputs, test inputs, test outputs.
+    """    
     # Extract features and add output column to the training set
     training_features = extract_features(training_set)
     training_features = add_output_column(training_features)
