@@ -1,0 +1,15 @@
+__pycache__/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Virtual environment
+venv/
+
+# IDE-specific files
+.vscode/
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
