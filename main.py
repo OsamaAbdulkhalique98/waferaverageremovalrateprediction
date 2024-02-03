@@ -20,7 +20,7 @@ rf_model.train_model(rf_model.model_rf, scaled_training_inputs, scaled_training_
 predictions_rf = rf_model.predict_and_inverse_transform(rf_model.model_rf, scaled_test_inputs, output_scaler)
 
 # Evaluate the model and get metrics
-metrics_rf = rf_model.evaluate_model(predictions_rf, scaled_test_outputs)
+metrics_rf, relative_errors_rf = rf_model.evaluate_model(predictions_rf, scaled_test_outputs)
 
 # Perform KS-test for the Random Forest model
 ks_test_rf = rf_model.perform_ks_test(predictions_rf - scaled_test_outputs, 0, 1)
@@ -36,7 +36,7 @@ svr_model.train_model(svr_model.model_svr, scaled_training_inputs, scaled_traini
 predictions_svr = svr_model.predict_and_inverse_transform(svr_model.model_svr, scaled_test_inputs, output_scaler)
 
 # Evaluate the model and get metrics
-metrics_svr = svr_model.evaluate_model(predictions_svr, scaled_test_outputs)
+metrics_svr, relative_errors_svr = svr_model.evaluate_model(predictions_svr, scaled_test_outputs)
 
 # Perform KS-test for the SVR model
 ks_test_svr = svr_model.perform_ks_test(predictions_svr - scaled_test_outputs, 0, 1)
@@ -52,7 +52,7 @@ lasso_model.train_model(lasso_model.model_lasso, scaled_training_inputs, scaled_
 predictions_lasso = lasso_model.predict_and_inverse_transform(lasso_model.model_lasso, scaled_test_inputs, output_scaler)
 
 # Evaluate the model and get metrics
-metrics_lasso = lasso_model.evaluate_model(predictions_lasso, scaled_test_outputs)
+metrics_lasso, relative_errors_lasso = lasso_model.evaluate_model(predictions_lasso, scaled_test_outputs)
 
 # Perform KS-test for the Lasso model
 ks_test_lasso = lasso_model.perform_ks_test(predictions_lasso - scaled_test_outputs, 0, 1)

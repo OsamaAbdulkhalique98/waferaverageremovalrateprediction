@@ -1,7 +1,6 @@
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.linear_model import Lasso
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
@@ -68,7 +67,7 @@ class RemovalRateModel:
             'R': np.corrcoef(test_outputs_inv, predictions)[0, 1],
             'R2 Score': r2_score(test_outputs_inv, predictions)
         }
-        return metrics
+        return metrics, relative_errors
     
     def summarize_result(self, metrics_rf, metrics_svr, metrics_lasso):
         results = pd.DataFrame({"Random Forest": metrics_rf,
