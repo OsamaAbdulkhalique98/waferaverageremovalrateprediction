@@ -4,7 +4,8 @@ from src.data_processing import read_and_combine, scale_data, prepare_data
 # Use read_and_combine to combine CSV files into two DataFrames for training and test
 training_data = read_and_combine()
 test_data = read_and_combine("test")
-training_inputs, training_outputs, test_inputs, test_outputs = prepare_data(training_data, test_data, separate_stage=True)
+outliers = True
+training_inputs, training_outputs, test_inputs, test_outputs = prepare_data(training_data, test_data, outliers)
 
 # Scale the data
 scaled_training_inputs, scaled_test_inputs, scaled_training_outputs, scaled_test_outputs, output_scaler = scale_data(

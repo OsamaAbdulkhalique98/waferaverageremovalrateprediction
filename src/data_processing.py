@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-
+from scipy.stats import zscore
 
 def read_and_combine(folder: str = "training"):
     # Path to the folder containing CSV files
@@ -71,27 +71,52 @@ def add_output_column(data: pd.DataFrame(),
     return data
 
 
-def prepare_data(training_set, test_set):
+def prepare_data(training_set, test_set, outliers):
     # Extract features and add output column to the training set
     training_features = extract_features(training_set)
     training_features = add_output_column(training_features)
-
+    
     # Extract features and add output column to the test set
     test_features = extract_features(test_set)
     test_features = add_output_column(test_features, "test")
     
+    # Remove outliers from specified columns
+    if not outliers:
+        training_features = remove_outliers(training_features)
+        test_features = remove_outliers(test_features)
     training_features["STAGE"] = training_features["STAGE"].replace({"A": 0, "B": 1})
     test_features["STAGE"] = test_features["STAGE"].replace({"A": 0, "B": 1})
+    
     # Create training inputs and outputs
     training_inputs = training_features.drop(columns=['WAFER_ID', 'AVG_REMOVAL_RATE']).values
     training_outputs = training_features['AVG_REMOVAL_RATE'].values
-
+    
     # Create test inputs and outputs
     test_inputs = test_features.drop(columns=['WAFER_ID', 'AVG_REMOVAL_RATE']).values
     test_outputs = test_features['AVG_REMOVAL_RATE'].values
-
     return training_inputs, training_outputs, test_inputs, test_outputs
 
+def remove_outliers(data: pd.DataFrame, threshold: float = 3):
+    """
+    Remove outliers from specified columns in the DataFrame using Z-score.
+
+    Parameters:
+    - data: DataFrame containing the data.
+    - columns: List of columns for which outliers should be removed.
+    - threshold: Z-score threshold for identifying outliers. Default is 3.
+
+    Returns:
+    - data_cleaned: DataFrame with outliers removed.
+    """
+    numeric_columns = []
+    for i in data.select_dtypes(include="number"):
+        if i not in ["TIMESTAMP", "CHAMBER", "WAFER_ID"]:
+            numeric_columns.append(i)
+    
+    z_scores = zscore(data[numeric_columns])
+    outliers = (abs(z_scores) > threshold).any(axis=1)
+    data_cleaned = data[~outliers]
+    return data_cleaned
 
 def scale_data(training_inputs, training_outputs, test_inputs, test_outputs):
     """
