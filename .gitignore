@@ -13,3 +13,7 @@ venv/
 *.pyc
 *.pyo
 *.pyd
+
+data/test/*
+data/training/*
+data/validation/*
