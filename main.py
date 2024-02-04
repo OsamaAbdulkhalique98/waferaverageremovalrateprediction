@@ -63,10 +63,10 @@ ks_test_lasso = lasso_model.perform_ks_test(predictions_lasso - scaled_test_outp
 errors_rf = predictions_rf - scaled_test_outputs
 errors_svr = predictions_svr - scaled_test_outputs
 errors_lasso = predictions_lasso -scaled_test_outputs
-
-results = RemovalRateModel().summarize_result(metrics_rf, metrics_svr, metrics_lasso)
+model_instance = RemovalRateModel()
+results = model_instance.summarize_result(metrics_rf, metrics_svr, metrics_lasso)
 print(results)
 # Plot errors by Wafer ID
-RemovalRateModel().plot_errors_by_wafer(errors_rf, errors_svr, errors_lasso)
+model_instance.plot_errors_by_wafer(errors_rf, errors_svr, errors_lasso)
 # Plot errors by histogram with normal distribution
-RemovalRateModel().plot_errors_by_histogram_with_normal(errors_rf, errors_svr, errors_lasso)
+model_instance.plot_errors_by_histogram_with_normal(errors_rf, errors_svr, errors_lasso)
