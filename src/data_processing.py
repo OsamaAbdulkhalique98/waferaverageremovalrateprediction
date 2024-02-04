@@ -2,7 +2,6 @@ import os
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-from scipy.stats import zscore
 
 def read_and_combine(folder: str = "training"):
     """
@@ -101,7 +100,7 @@ def add_output_column(data: pd.DataFrame(),
     return data
 
 
-def prepare_data(training_set, test_set, outliers):
+def prepare_data(training_set, test_set, outliers, stage=None):
     """
     Prepare training and test data for model training and testing.
 
@@ -109,7 +108,7 @@ def prepare_data(training_set, test_set, outliers):
     - training_set (pd.DataFrame): Training set DataFrame.
     - test_set (pd.DataFrame): Test set DataFrame.
     - outliers (bool): Placeholder for outlier handling: If True, will continue without dropping outliers.
-
+    - stage (default None): Placeholder for allowing either STAGE 'A' or STAGE 'B' or Both from the dataset.
     Returns:
     - Training inputs, training outputs, test inputs, test outputs.
     """    
@@ -125,9 +124,17 @@ def prepare_data(training_set, test_set, outliers):
     if not outliers:
         training_features = remove_outliers(training_features)
         test_features = remove_outliers(test_features)
-    training_features["STAGE"] = training_features["STAGE"].replace({"A": 0, "B": 1})
-    test_features["STAGE"] = test_features["STAGE"].replace({"A": 0, "B": 1})
-    
+        
+    # If one of the Stage is selected by the user:
+    if stage is not None:
+        training_features = training_features[training_features["STAGE"] == stage]
+        test_features = test_features[test_features["STAGE"] == stage]
+        training_features.loc[training_features["STAGE"] == stage, "STAGE"] = 1
+        test_features.loc[test_features["STAGE"] == stage, "STAGE"] = 1
+    else:    
+        training_features["STAGE"] = training_features["STAGE"].replace({"A": 0, "B": 1})
+        test_features["STAGE"] = test_features["STAGE"].replace({"A": 0, "B": 1})
+        
     # Create training inputs and outputs
     training_inputs = training_features.drop(columns=['WAFER_ID', 'AVG_REMOVAL_RATE']).values
     training_outputs = training_features['AVG_REMOVAL_RATE'].values
@@ -135,29 +142,37 @@ def prepare_data(training_set, test_set, outliers):
     # Create test inputs and outputs
     test_inputs = test_features.drop(columns=['WAFER_ID', 'AVG_REMOVAL_RATE']).values
     test_outputs = test_features['AVG_REMOVAL_RATE'].values
+
     return training_inputs, training_outputs, test_inputs, test_outputs
 
-def remove_outliers(data: pd.DataFrame, threshold: float = 3):
+def remove_outliers(data: pd.DataFrame, upper_bound=0.75, lower_bound=0.25):
     """
-    Remove outliers from specified columns in the DataFrame using Z-score.
+    Remove outliers from all columns.
 
     Parameters:
     - data: DataFrame containing the data.
-    - columns: List of columns for which outliers should be removed.
-    - threshold: Z-score threshold for identifying outliers. Default is 3.
+    - upper_bound: a float value for 75th percentile.
+    - lower_bound: a float value for 25th percentile.
 
     Returns:
-    - data_cleaned: DataFrame with outliers removed.
+    - data_with_no_outliers: DataFrame with outliers removed.
     """
-    numeric_columns = []
-    for i in data.select_dtypes(include="number"):
-        if i not in ["TIMESTAMP", "CHAMBER", "WAFER_ID"]:
-            numeric_columns.append(i)
+    outlier_columns = list(data.iloc[:, 3:].columns)
     
-    z_scores = zscore(data[numeric_columns])
-    outliers = (abs(z_scores) > threshold).any(axis=1)
-    data_cleaned = data[~outliers]
-    return data_cleaned
+    Q1 = data[outlier_columns].quantile(lower_bound)
+    Q3 = data[outlier_columns].quantile(upper_bound)
+    
+    # InterQuartileRange IQR
+    IQR = Q3 - Q1
+    
+    # Outliers Range:
+    lower_limit = Q1 - 1.5 * IQR
+    upper_limit = Q3 + 1.5 * IQR
+    
+    
+    # Removing Outliers:
+    data_with_no_outliers = data[~((data[outlier_columns] < lower_limit) | (data[outlier_columns] > upper_limit)).any(axis=1)]
+    return data_with_no_outliers
 
 def scale_data(training_inputs, training_outputs, test_inputs, test_outputs):
     """
