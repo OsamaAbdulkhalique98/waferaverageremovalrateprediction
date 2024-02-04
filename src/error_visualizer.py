@@ -20,7 +20,7 @@ class ErrorVisualizationAnalyzer:
         results = pd.DataFrame({"Random Forest": metrics_rf,
                                 "SVR": metrics_svr,
                                 "Lasso": metrics_lasso})
-        return results.T
+        return results
 
     def plot_errors_by_wafer(self, errors_rf, errors_svr, errors_lasso):
         """
