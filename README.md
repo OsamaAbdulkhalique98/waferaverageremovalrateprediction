@@ -28,5 +28,6 @@ The project is organized into the following components:
    Would you like to remove outliers (yes or no)? 
    Which STAGE would you like to select (A, B, or Both): 
   ```  
-   The predictions vary based on these inputs. If you want the outliers to be removed, you will end up with higher accuracy.
+   The predictions vary based on these inputs. If you want the outliers to be removed, you will end up with higher accuracy.  
+  
 4. **Done!**
